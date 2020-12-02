@@ -32,7 +32,7 @@ import me.konotyran.leaguerestreamtool.helpers.Tracker;
  *
  * @author HAklo
  */
-public class Mainwindow extends javax.swing.JFrame {
+public class Main extends javax.swing.JFrame {
 
     List<String[]> Matches = new ArrayList();
 
@@ -45,7 +45,7 @@ public class Mainwindow extends javax.swing.JFrame {
     /**
      * Creates new form main window
      */
-    public Mainwindow() {
+    public Main() {
         initComponents();
     }
 
@@ -115,9 +115,29 @@ public class Mainwindow extends javax.swing.JFrame {
             }
         });
         scheduleTable.setToolTipText("");
-        scheduleTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_NEXT_COLUMN);
+        scheduleTable.setAlignmentY(0.0F);
+        scheduleTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
         scheduleTable.setRowHeight(35);
+        scheduleTable.getColumnModel().getColumn(0).setPreferredWidth(160);
+        scheduleTable.getColumnModel().getColumn(0).setMaxWidth(160);
+        scheduleTable.getColumnModel().getColumn(0).setMinWidth(160);
+        scheduleTable.getColumnModel().getColumn(1).setPreferredWidth(166);
+        scheduleTable.getColumnModel().getColumn(1).setMaxWidth(166);
+        scheduleTable.getColumnModel().getColumn(1).setMinWidth(166);
+        scheduleTable.getColumnModel().getColumn(2).setPreferredWidth(166);
+        scheduleTable.getColumnModel().getColumn(2).setMaxWidth(166);
+        scheduleTable.getColumnModel().getColumn(2).setMinWidth(166);
+        scheduleTable.getColumnModel().getColumn(3).setPreferredWidth(131);
+        scheduleTable.getColumnModel().getColumn(3).setMaxWidth(131);
+        scheduleTable.getColumnModel().getColumn(3).setMinWidth(131);
+        scheduleTable.getColumnModel().getColumn(4).setPreferredWidth(190);
+        scheduleTable.getColumnModel().getColumn(4).setMaxWidth(190);
+        scheduleTable.getColumnModel().getColumn(4).setMinWidth(190);
+        scheduleTable.getColumnModel().getColumn(5).setPreferredWidth(95);
+        scheduleTable.getColumnModel().getColumn(5).setMaxWidth(95);
+        scheduleTable.getColumnModel().getColumn(5).setMinWidth(95);
         scheduleTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        scheduleTable.setShowHorizontalLines(true);
         scheduleTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(scheduleTable);
 
@@ -147,10 +167,10 @@ public class Mainwindow extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 914, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1140, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(buttonOpen)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -179,11 +199,20 @@ public class Mainwindow extends javax.swing.JFrame {
     private void FetchSchedule(String event) {
         
         ZonedDateTime eastern = ZonedDateTime.now(easternZone);
-        ZonedDateTime oneWeek = eastern.plusWeeks(1);
+        ZonedDateTime yesterday = eastern.minusDays(1);
+        ZonedDateTime oneWeek = eastern.plusDays(2);
         
         HttpClient client = HttpClient.newHttpClient();
         
-        HttpRequest request = HttpRequest.newBuilder(URI.create("http://speedgaming.org/api/schedule/?event=" + event + "&to=" + dtfISO.format(oneWeek))).header("accept", "application/json").build();
+        HttpRequest request = HttpRequest.newBuilder(
+                URI.create("http://speedgaming.org/api/schedule/?event="
+                        + event
+                        + "&from="
+                        + dtfISO.format(yesterday)
+                        + "&to="
+                        + dtfISO.format(oneWeek)
+                )
+        ).header("accept", "application/json").build();
         
         client.sendAsync(request, BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
@@ -209,8 +238,8 @@ public class Mainwindow extends javax.swing.JFrame {
                 String team1 = "?";
                 String team2 = "?";
                 if (event.match.title.contains("_")) {
-                    team1 = event.match.title.isBlank() ? "no team" : event.match.title.split("_")[0];
-                    team2 = event.match.title.isBlank() ? "no team" : event.match.title.split("_")[1];
+                    team1 = event.match.title.isBlank() ? "?" : event.match.title.split("_")[0];
+                    team2 = event.match.title.isBlank() ? "?" : event.match.title.split("_")[1];
                 }
                 
                 
@@ -245,12 +274,46 @@ public class Mainwindow extends javax.swing.JFrame {
                 }
                 trackers = String.join(", ", approvedTrackers);
                 
-                this.Matches.add(new String[] { time, team1, playerleft[0], playerleft[1], team2, playerright[0], playerright[1], channel, comms, trackers });
-                dtm.addRow((Object[])new String[] { time, "<html><p style='white-space: nowrap;overflow: hidden;text-overflow: clip;'>" + team1 + "</p><p style='white-space: nowrap;overflow: hidden;text-overflow: clip;'>" + playerleft[0] + " " + playerleft[1] + "</p></html>", "<html><p style='white-space: nowrap;overflow: hidden;text-overflow: clip;'>" + team2 + "</p><p style='white-space: nowrap;overflow: hidden;text-overflow: clip;'>" + playerright[0] + " " + playerright[1] + "</p></html>", channel, comms, trackers, "<html>" + event.match.note + "</html>" });
+                this.Matches.add(new String[] { 
+                    time, 
+                    team1, 
+                    playerleft[0], 
+                    playerleft[1], 
+                    team2, 
+                    playerright[0], 
+                    playerright[1], 
+                    channel, 
+                    comms, 
+                    trackers 
+                }); //add to our internal variable so we dont have to re-parse events
+                
+                dtm.addRow((Object[])new String[] {
+                    time,
+                    "<html><p style='white-space: nowrap;overflow: hidden;text-overflow: ellipsis;'>"
+                            + team1
+                            + "</p><p style='white-space: nowrap;overflow: hidden;text-overflow: ellipsis;'>"
+                            + playerleft[0]
+                            + " "
+                            + playerleft[1]
+                            + "</p></html>",
+                    "<html><p style='white-space: nowrap;overflow: hidden;text-overflow: ellipsis;'>"
+                            + team2
+                            + "</p><p style='white-space: nowrap;overflow: hidden;text-overflow: ellipsis;'>"
+                            + playerright[0]
+                            + " "
+                            + playerright[1]
+                            + "</p></html>",
+                    channel,
+                    comms,
+                    trackers,
+                    "<html>"
+                            + event.match.note
+                            + "<br>&nbsp;</html>" // yes its a bit hacky but it works.
+                });
                 
             }
         } catch (JsonProcessingException ex) {
-            Logger.getLogger(Mainwindow.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
         Status.setText("Finished");
     }
@@ -308,7 +371,7 @@ public class Mainwindow extends javax.swing.JFrame {
             
         } catch (IOException ex) {
             Status.setText("Error Writing Files");
-            Logger.getLogger(Mainwindow.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_buttonSubmitActionPerformed
 
@@ -336,21 +399,23 @@ public class Mainwindow extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Mainwindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Mainwindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Mainwindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Mainwindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                Mainwindow gui = new Mainwindow();
+                Main gui = new Main();
                 gui.setVisible(true);
             }
         });

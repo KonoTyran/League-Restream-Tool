@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.konotyran</groupId>
     <artifactId>LeagueRestreamTool</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.2</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -21,7 +21,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>me.konotyran.leaguerestreamtool.Mainwindow</mainClass>
+                            <mainClass>me.konotyran.leaguerestreamtool.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -41,7 +41,7 @@
 			  <transformers>
 				<!-- add Main-Class to manifest file -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-					<mainClass>me.konotyran.leaguerestreamtool.Mainwindow</mainClass>
+					<mainClass>me.konotyran.leaguerestreamtool.Main</mainClass>
 				</transformer>
 			  </transformers>
 			</configuration>

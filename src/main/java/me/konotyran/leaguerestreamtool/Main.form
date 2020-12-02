@@ -25,10 +25,10 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
-          <Group type="102" alignment="1" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="jScrollPane1" pref="914" max="32767" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jScrollPane1" pref="1140" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
                       <Component id="buttonOpen" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -104,9 +104,11 @@
               </Table>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value=""/>
-            <Property name="autoResizeMode" type="int" value="1"/>
-            <Property name="rowHeight" type="int" value="35"/>
+            <Property name="alignmentY" type="float" value="0.0"/>
+            <Property name="autoResizeMode" type="int" value="3"/>
+            <Property name="rowHeight" type="int" value="35" postCode="scheduleTable.getColumnModel().getColumn(0).setPreferredWidth(160);&#xa;scheduleTable.getColumnModel().getColumn(0).setMaxWidth(160);&#xa;scheduleTable.getColumnModel().getColumn(0).setMinWidth(160);&#xa;scheduleTable.getColumnModel().getColumn(1).setPreferredWidth(166);&#xa;scheduleTable.getColumnModel().getColumn(1).setMaxWidth(166);&#xa;scheduleTable.getColumnModel().getColumn(1).setMinWidth(166);&#xa;scheduleTable.getColumnModel().getColumn(2).setPreferredWidth(166);&#xa;scheduleTable.getColumnModel().getColumn(2).setMaxWidth(166);&#xa;scheduleTable.getColumnModel().getColumn(2).setMinWidth(166);&#xa;scheduleTable.getColumnModel().getColumn(3).setPreferredWidth(131);&#xa;scheduleTable.getColumnModel().getColumn(3).setMaxWidth(131);&#xa;scheduleTable.getColumnModel().getColumn(3).setMinWidth(131);&#xa;scheduleTable.getColumnModel().getColumn(4).setPreferredWidth(190);&#xa;scheduleTable.getColumnModel().getColumn(4).setMaxWidth(190);&#xa;scheduleTable.getColumnModel().getColumn(4).setMinWidth(190);&#xa;scheduleTable.getColumnModel().getColumn(5).setPreferredWidth(95);&#xa;scheduleTable.getColumnModel().getColumn(5).setMaxWidth(95);&#xa;scheduleTable.getColumnModel().getColumn(5).setMinWidth(95);"/>
             <Property name="selectionMode" type="int" value="0"/>
+            <Property name="showHorizontalLines" type="boolean" value="true"/>
             <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
               <TableHeader reorderingAllowed="false" resizingAllowed="true"/>
             </Property>
