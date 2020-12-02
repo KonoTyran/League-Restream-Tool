@@ -27,8 +27,4 @@ public class Event {
     
     public Tracker[] trackers;
     
-    public String getTitle() {
-        return match.title;
-    }
-    
 }
