@@ -28,3 +28,4 @@ hs_err_pid*
 #ignore the target directory
 /target/
 /dependency-reduced-pom.xml
+nb-configuration.xml

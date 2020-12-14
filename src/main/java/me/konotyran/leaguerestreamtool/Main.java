@@ -7,14 +7,13 @@ package me.konotyran.leaguerestreamtool;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.util.List;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -27,6 +26,7 @@ import me.konotyran.leaguerestreamtool.helpers.Channel;
 import me.konotyran.leaguerestreamtool.helpers.Commentator;
 import me.konotyran.leaguerestreamtool.helpers.Event;
 import me.konotyran.leaguerestreamtool.helpers.Tracker;
+
 
 /**
  *
@@ -200,23 +200,39 @@ public class Main extends javax.swing.JFrame {
         
         ZonedDateTime eastern = ZonedDateTime.now(easternZone);
         ZonedDateTime yesterday = eastern.minusDays(1);
-        ZonedDateTime oneWeek = eastern.plusDays(2);
+        ZonedDateTime oneWeek = eastern.plusDays(7);
+       
         
-        HttpClient client = HttpClient.newHttpClient();
-        
-        HttpRequest request = HttpRequest.newBuilder(
-                URI.create("http://speedgaming.org/api/schedule/?event="
+        String urlstr =
+                "http://speedgaming.org/api/schedule/?event="
                         + event
                         + "&from="
                         + dtfISO.format(yesterday)
                         + "&to="
-                        + dtfISO.format(oneWeek)
-                )
-        ).header("accept", "application/json").build();
+                        + dtfISO.format(oneWeek);
+        try {
+        URL url = new URL(urlstr);
+            HttpURLConnection con;
         
-        client.sendAsync(request, BodyHandlers.ofString())
-                .thenApply(HttpResponse::body)
-                .thenAccept(this::WriteSchedule);
+            con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            
+            BufferedReader in = new BufferedReader(
+            new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer content = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+            in.close();
+            con.disconnect();
+            
+            WriteSchedule(content.toString());
+            
+        } catch (IOException ex) {
+            Status.setText("Error Fetching schedule.");
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
     }
     
@@ -238,8 +254,8 @@ public class Main extends javax.swing.JFrame {
                 String team1 = "?";
                 String team2 = "?";
                 if (event.match.title.contains("_")) {
-                    team1 = event.match.title.isBlank() ? "?" : event.match.title.split("_")[0];
-                    team2 = event.match.title.isBlank() ? "?" : event.match.title.split("_")[1];
+                    team1 = event.match.title.equals("") ? "?" : event.match.title.split("_")[0];
+                    team2 = event.match.title.equals("") ? "?" : event.match.title.split("_")[1];
                 }
                 
                 
