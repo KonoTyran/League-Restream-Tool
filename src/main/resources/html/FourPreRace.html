@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=1920, initial-scale=1.0" />
+    <title>FourPlayer</title>
+    <script id="timer_script">
+      let countDownDate;
+    </script>
+    <script>
+      (function (root, factory) {
+        "use strict";
+        if (typeof define === "function" && define.amd) {
+          define([], factory);
+        } else if (typeof exports === "object") {
+          module.exports = factory();
+        } else {
+          root.textFit = factory();
+        }
+      })(typeof global === "object" ? global : this, function () {
+        "use strict";
+        var defaultSettings = {
+          alignVert: false,
+          alignHoriz: false,
+          multiLine: false,
+          detectMultiLine: true,
+          minFontSize: 6,
+          maxFontSize: 80,
+          reProcess: true,
+          widthOnly: false,
+          alignVertWithFlexbox: false,
+        };
+        return function textFit(els, options) {
+          if (!options) options = {};
+          var settings = {};
+          for (var key in defaultSettings) {
+            if (options.hasOwnProperty(key)) {
+              settings[key] = options[key];
+            } else {
+              settings[key] = defaultSettings[key];
+            }
+          }
+          if (typeof els.toArray === "function") {
+            els = els.toArray();
+          }
+          var elType = Object.prototype.toString.call(els);
+          if (
+            elType !== "[object Array]" &&
+            elType !== "[object NodeList]" &&
+            elType !== "[object HTMLCollection]"
+          ) {
+            els = [els];
+          }
+          for (var i = 0; i < els.length; i++) {
+            processItem(els[i], settings);
+          }
+        };
+        function processItem(el, settings) {
+          if (
+            !isElement(el) ||
+            (!settings.reProcess && el.getAttribute("textFitted"))
+          ) {
+            return false;
+          }
+          if (!settings.reProcess) {
+            el.setAttribute("textFitted", 1);
+          }
+          var innerSpan, originalHeight, originalHTML, originalWidth;
+          var low, mid, high;
+          originalHTML = el.innerHTML;
+          originalWidth = innerWidth(el);
+          originalHeight = innerHeight(el);
+          if (!originalWidth || (!settings.widthOnly && !originalHeight)) {
+            if (!settings.widthOnly)
+              throw new Error(
+                "Set a static height and width on the target element " +
+                  el.outerHTML +
+                  " before using textFit!"
+              );
+            else
+              throw new Error(
+                "Set a static width on the target element " +
+                  el.outerHTML +
+                  " before using textFit!"
+              );
+          }
+          if (originalHTML.indexOf("textFitted") === -1) {
+            innerSpan = document.createElement("span");
+            innerSpan.className = "textFitted";
+            innerSpan.style["display"] = "inline-block";
+            innerSpan.innerHTML = originalHTML;
+            el.innerHTML = "";
+            el.appendChild(innerSpan);
+          } else {
+            innerSpan = el.querySelector("span.textFitted");
+            if (hasClass(innerSpan, "textFitAlignVert")) {
+              innerSpan.className = innerSpan.className.replace(
+                "textFitAlignVert",
+                ""
+              );
+              innerSpan.style["height"] = "";
+              el.className.replace("textFitAlignVertFlex", "");
+            }
+          }
+          if (settings.alignHoriz) {
+            el.style["text-align"] = "center";
+            innerSpan.style["text-align"] = "center";
+          }
+          var multiLine = settings.multiLine;
+          if (
+            settings.detectMultiLine &&
+            !multiLine &&
+            innerSpan.scrollHeight >=
+              parseInt(window.getComputedStyle(innerSpan)["font-size"], 10) * 2
+          ) {
+            multiLine = true;
+          }
+          if (!multiLine) {
+            el.style["white-space"] = "nowrap";
+          }
+          low = settings.minFontSize;
+          high = settings.maxFontSize;
+          var size = low;
+          while (low <= high) {
+            mid = (high + low) >> 1;
+            innerSpan.style.fontSize = mid + "px";
+            if (
+              innerSpan.scrollWidth <= originalWidth &&
+              (settings.widthOnly || innerSpan.scrollHeight <= originalHeight)
+            ) {
+              size = mid;
+              low = mid + 1;
+            } else {
+              high = mid - 1;
+            }
+          }
+          if (innerSpan.style.fontSize != size + "px")
+            innerSpan.style.fontSize = size + "px";
+          if (settings.alignVert) {
+            addStyleSheet();
+            var height = innerSpan.scrollHeight;
+            if (window.getComputedStyle(el)["position"] === "static") {
+              el.style["position"] = "relative";
+            }
+            if (!hasClass(innerSpan, "textFitAlignVert")) {
+              innerSpan.className = innerSpan.className + " textFitAlignVert";
+            }
+            innerSpan.style["height"] = height + "px";
+            if (
+              settings.alignVertWithFlexbox &&
+              !hasClass(el, "textFitAlignVertFlex")
+            ) {
+              el.className = el.className + " textFitAlignVertFlex";
+            }
+          }
+        }
+        function innerHeight(el) {
+          var style = window.getComputedStyle(el, null);
+          return (
+            el.clientHeight -
+            parseInt(style.getPropertyValue("padding-top"), 10) -
+            parseInt(style.getPropertyValue("padding-bottom"), 10)
+          );
+        }
+        function innerWidth(el) {
+          var style = window.getComputedStyle(el, null);
+          return (
+            el.clientWidth -
+            parseInt(style.getPropertyValue("padding-left"), 10) -
+            parseInt(style.getPropertyValue("padding-right"), 10)
+          );
+        }
+        function isElement(o) {
+          return typeof HTMLElement === "object"
+            ? o instanceof HTMLElement
+            : o &&
+                typeof o === "object" &&
+                o !== null &&
+                o.nodeType === 1 &&
+                typeof o.nodeName === "string";
+        }
+        function hasClass(element, cls) {
+          return (" " + element.className + " ").indexOf(" " + cls + " ") > -1;
+        }
+        function addStyleSheet() {
+          if (document.getElementById("textFitStyleSheet")) return;
+          var style = [
+            ".textFitAlignVert{",
+            "position: absolute;",
+            "top: 0; right: 0; bottom: 0; left: 0;",
+            "margin: auto;",
+            "display: flex;",
+            "justify-content: center;",
+            "flex-direction: column;",
+            "}",
+            ".textFitAlignVertFlex{",
+            "display: flex;",
+            "}",
+            ".textFitAlignVertFlex .textFitAlignVert{",
+            "position: static;",
+            "}",
+          ].join("");
+          var css = document.createElement("style");
+          css.type = "text/css";
+          css.id = "textFitStyleSheet";
+          css.innerHTML = style;
+          document.body.appendChild(css);
+        }
+      });
+    </script>
+    <script>
+      window.onload = function () {
+        textFit(document.getElementsByClassName("resize_center"), {
+          alignVert: true,
+          alignHoriz: true,
+          detectMultiLine: false,
+        });
+        textFit(document.getElementsByClassName("resize"));
+      };
+
+      // Update the count down every 1 second
+      var x = setInterval(function () {
+        if (countDownDate == null) {
+          document.getElementById("timer").innerText = "Soon";
+          return;
+        }
+
+        // Get today's date and time
+        var now = new Date().getTime();
+
+        // Find the distance between now and the count down date
+        var distance = countDownDate - now;
+
+        // Time calculations for days, hours, minutes and seconds
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Output the result in an element with id="demo"
+        document.getElementById("timer").innerText =
+          (minutes + "").padStart(2, "0") +
+          ":" +
+          (seconds + "").padStart(2, "0");
+
+        // If the count down is over, write some text
+        if (distance < 0) {
+          clearInterval(x);
+          document.getElementById("timer").innerText = "NOW";
+        }
+      }, 1000);
+    </script>
+    <style>
+      @import url("https://fonts.googleapis.com/css?family=Roboto&display=swap");
+
+      *,
+      *::after,
+      *::before {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: rgba(0, 0, 0, 1);
+        overflow: hidden;
+        color: white;
+        font-family: "Roboto";
+        font-weight: bold;
+      }
+
+      #layout {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1920px;
+        height: 1080px;
+      }
+
+      .team_logo {
+        height: 177px;
+        width: 176px;
+        z-index: -1;
+        position: absolute;
+      }
+
+      .player_logo {
+        height: 121px;
+        width: 122px;
+        z-index: -1;
+        position: absolute;
+      }
+
+      .team_name {
+        position: absolute;
+        height: 98px;
+        width: 620px;
+        z-index: 1;
+      }
+
+      .player_name {
+        position: absolute;
+        height: 90px;
+        width: 549px;
+        z-index: 1;
+      }
+
+      #t1_logo {
+        top: 316px;
+        left: 736px;
+      }
+      #t1_name {
+        top: 316px;
+        left: 89px;
+      }
+
+      #p1_logo {
+        top: 525px;
+        left: 89px;
+      }
+      #p1_name {
+        top: 541px;
+        left: 233px;
+      }
+
+      #p3_logo {
+        top: 668px;
+        left: 89px;
+      }
+      #p3_name {
+        top: 684px;
+        left: 233px;
+      }
+
+      #t2_logo {
+        top: 316px;
+        left: 1008px;
+      }
+      #t2_name {
+        top: 316px;
+        left: 1211px;
+      }
+
+      #p2_logo {
+        top: 525px;
+        left: 1709px;
+      }
+      #p2_name {
+        top: 541px;
+        left: 1138px;
+      }
+
+      #p4_logo {
+        top: 668px;
+        left: 1709px;
+      }
+      #p4_name {
+        top: 684px;
+        left: 1138px;
+      }
+
+      .crew_wrapper {
+        position: absolute;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5em;
+        top: 944px;
+        left: 125px;
+        width: 1670px;
+        height: 93px;
+        fill: white;
+        z-index: 1;
+      }
+
+      .text {
+        padding-right: 0.5em;
+      }
+
+      .comms::before {
+        content: "";
+        background-image: url("data:image/svg+xml;utf8,%3Csvg%20version%3D%221.1%22%20id%3D%22Capa_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20viewBox%3D%220%200%20348.165%20348.165%22%20xml%3Aspace%3D%22preserve%22%20style%3D%22fill%3A%20white%22%20%3E%20%3Cpath%20d%3D%22M194.752%2C329.165c-5.5%2C0-9.98-4.43-9.98-9.93V257.66c0-5.5-4.52-10.495-10.02-10.495h-1.34%20c-5.5%2C0-9.641%2C4.995-9.641%2C10.495v61.576c0%2C5.5-4.859%2C9.93-10.359%2C9.93h-33.848c-5.5%2C0-10%2C3.223-10%2C7c0%2C3.776%2C4.5%2C7%2C10%2C7%20H228.6c5.5%2C0%2C10-3.224%2C10-7c0-3.777-4.5-7-10-7H194.752z%22%2F%3E%20%3Cpath%20d%3D%22M228.6%2C348.165H119.565c-8.271%2C0-15-5.383-15-12c0-6.617%2C6.729-12%2C15-12h33.848c2.855%2C0%2C5.359-2.304%2C5.359-4.93%20v-61.576c0-8.544%2C6.568-15.494%2C14.641-15.494h1.34c8.142%2C0%2C15.02%2C7.096%2C15.02%2C15.494v61.576c0%2C2.718%2C2.234%2C4.93%2C4.98%2C4.93%20H228.6c8.271%2C0%2C15%2C5.383%2C15%2C12C243.6%2C342.782%2C236.871%2C348.165%2C228.6%2C348.165z%20M119.565%2C334.165%20c-3.134%2C0-4.878%2C1.551-5.004%2C2.043c0.126%2C0.406%2C1.87%2C1.957%2C5.004%2C1.957H228.6c3.134%2C0%2C4.878-1.551%2C5.004-2.043%20c-0.126-0.406-1.87-1.957-5.004-1.957h-33.848c-8.26%2C0-14.98-6.697-14.98-14.93v-61.576c0-2.875-2.393-5.494-5.02-5.494%20h-1.34c-2.776%2C0-4.641%2C2.841-4.641%2C5.494v61.576c0%2C8.093-7.034%2C14.93-15.359%2C14.93H119.565z%22%2F%3E%20%3Cpath%20d%3D%22M176.113%2C261.133h-4.063c-26.731%2C0-53.84-10.418-74.375-28.582%20c-22.478-19.879-35.371-47.499-35.371-75.775c0-8.284%2C6.716-15%2C15-15c8.284%2C0%2C15%2C6.716%2C15%2C15%20c0%2C19.686%2C9.202%2C39.114%2C25.246%2C53.304c15.127%2C13.38%2C34.991%2C21.054%2C54.5%2C21.054h4.063c19.51%2C0%2C39.374-7.674%2C54.5-21.053%20c16.045-14.191%2C25.247-33.619%2C25.247-53.305c0-8.284%2C6.716-15%2C15-15c8.284%2C0%2C15%2C6.716%2C15%2C15%20c0%2C28.275-12.892%2C55.895-35.371%2C75.776C229.954%2C250.715%2C202.845%2C261.133%2C176.113%2C261.133z%22%2F%3E%20%3Cpath%20d%3D%22M224.646%2C150.587c0%2C24.711-24.261%2C44.743-48.969%2C44.743h-3.187c-24.709%2C0-48.971-20.032-48.971-44.743V49.741%20C123.519%2C25.031%2C147.78%2C5%2C172.489%2C5h3.187c24.708%2C0%2C48.969%2C20.031%2C48.969%2C44.742V150.587z%22%2F%3E%20%3Cpath%20d%3D%22M175.676%2C200.33h-3.187c-28.751%2C0-53.971-23.244-53.971-49.742V49.741C118.519%2C23.243%2C143.738%2C0%2C172.49%2C0h3.187%20c28.75%2C0%2C53.969%2C23.243%2C53.969%2C49.741v100.847C229.646%2C177.086%2C204.426%2C200.33%2C175.676%2C200.33z%20M172.49%2C10%20c-23.013%2C0-43.971%2C18.942-43.971%2C39.741v100.847c0%2C20.8%2C20.958%2C39.742%2C43.971%2C39.742h3.187%20c23.012%2C0%2C43.969-18.942%2C43.969-39.742V49.741c0-20.799-20.958-39.741-43.969-39.741H172.49z%22%2F%3E%3C%2Fsvg%3E");
+        background-repeat: no-repeat;
+        background-position-x: left;
+        height: 40px;
+        width: 50px;
+        display: inline-block;
+      }
+
+      .trackers::before {
+        content: "";
+        background-image: url("data:image/svg+xml;utf8,%3Csvg%20viewBox%3D%22-96%200%20512%20512%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20style%3D%22fill%3Awhite%22%3E%3Cpath%20d%3D%22M302.189%20329.126H196.105l55.831%20135.993c3.889%209.428-.555%2019.999-9.444%2023.999l-49.165%2021.427c-9.165%204-19.443-.571-23.332-9.714l-53.053-129.136-86.664%2089.138C18.729%20472.71%200%20463.554%200%20447.977V18.299C0%201.899%2019.921-6.096%2030.277%205.443l284.412%20292.542c11.472%2011.179%203.007%2031.141-12.5%2031.141z%22%2F%3E%3C%2Fsvg%3E");
+        background-repeat: no-repeat;
+        background-position-x: left;
+        height: 40px;
+        width: 50px;
+        display: inline-block;
+      }
+
+      .restreamer::before {
+        content: "";
+        background-image: url("data:image/svg+xml;utf8,%3Csvg%20version%3D%221.1%22%20class%3D%22icon%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20viewBox%3D%220%200%2038.148%2038.149%22%20xml%3Aspace%3D%22preserve%22%20style%3D%22fill%3Awhite%22%3E%3Cpath%20d%3D%22M38.148%2C12.892v12.363c0%2C1.006-0.815%2C1.823-1.823%2C1.823h-3.951c-0.267%2C0-0.528-0.061-0.771-0.172l-3.182-1.479v2.006%20c0%2C1.009-0.816%2C1.824-1.824%2C1.824H1.823C0.815%2C29.257%2C0%2C28.442%2C0%2C27.433V10.715c0-1.009%2C0.815-1.824%2C1.823-1.824h24.774%20c1.008%2C0%2C1.824%2C0.815%2C1.824%2C1.824v2.006l3.182-1.482c0.24-0.113%2C0.504-0.17%2C0.771-0.17h3.951%20C37.333%2C11.068%2C38.148%2C11.885%2C38.148%2C12.892z%22%2F%3E%3C%2Fsvg%3E");
+        background-repeat: no-repeat;
+        background-position-x: left;
+        height: 40px;
+        width: 50px;
+        display: inline-block;
+      }
+
+      .outline {
+        text-shadow: 4px 0px 0 rgba(0, 0, 0, 0.7), 4px 1px 0 rgba(0, 0, 0, 0.7),
+          3px 2px 0 rgba(0, 0, 0, 0.7), 3px 3px 0 rgba(0, 0, 0, 0.7),
+          2px 3px 0 rgba(0, 0, 0, 0.7), 1px 4px 0 rgba(0, 0, 0, 0.7),
+          0px 4px 0 rgba(0, 0, 0, 0.7), -1px 4px 0 rgba(0, 0, 0, 0.7),
+          -2px 3px 0 rgba(0, 0, 0, 0.7), -3px 3px 0 rgba(0, 0, 0, 0.7),
+          -3px 2px 0 rgba(0, 0, 0, 0.7), -4px 1px 0 rgba(0, 0, 0, 0.7),
+          -4px 0px 0 rgba(0, 0, 0, 0.7), -4px -1px 0 rgba(0, 0, 0, 0.7),
+          -3px -2px 0 rgba(0, 0, 0, 0.7), -3px -3px 0 rgba(0, 0, 0, 0.7),
+          -2px -3px 0 rgba(0, 0, 0, 0.7), -1px -4px 0 rgba(0, 0, 0, 0.7),
+          0px -4px 0 rgba(0, 0, 0, 0.7), 1px -4px 0 rgba(0, 0, 0, 0.7),
+          2px -3px 0 rgba(0, 0, 0, 0.7), 3px -3px 0 rgba(0, 0, 0, 0.7),
+          3px -2px 0 rgba(0, 0, 0, 0.7), 4px -1px 0 rgba(0, 0, 0, 0.7);
+      }
+
+      .center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .icon {
+        width: 45px;
+      }
+
+      .title_wrapper {
+        position: absolute;
+        top: 179px;
+        left: 89px;
+        height: 105px;
+        width: 1742px;
+      }
+
+      .time_wrapper {
+        position: absolute;
+        top: 848px;
+        left: 500px;
+        height: 75px;
+        width: 920px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="title_wrapper resize_center outline">
+      Open Leauge <span id="stage">Week #</span>:
+      <span id="mode">Mode Text</span>
+    </div>
+
+    <!-- Team 1  -->
+    <img
+      class="team_logo"
+      id="t1_logo"
+      src="https://images.alttprleague.com/static/league/img/player-default.png"
+    />
+    <img
+      class="player_logo"
+      id="p1_logo"
+      src="https://images.alttprleague.com/static/league/img/player-default.png"
+    />
+    <img
+      class="player_logo"
+      id="p3_logo"
+      src="https://images.alttprleague.com/static/league/img/player-default.png"
+    />
+    <div class="team_name resize_center" id="t1_name">Team 1 Name</div>
+    <div class="player_name resize_center" id="p1_name">Player 1 Name</div>
+    <div class="player_name resize_center" id="p3_name">Player 3 Name</div>
+
+    <!-- Team 2 -->
+    <img
+      class="team_logo"
+      id="t2_logo"
+      src="https://images.alttprleague.com/static/league/img/player-default.png"
+    />
+    <img
+      class="player_logo"
+      id="p2_logo"
+      src="https://images.alttprleague.com/static/league/img/player-default.png"
+    />
+    <img
+      class="player_logo"
+      id="p4_logo"
+      src="https://images.alttprleague.com/static/league/img/player-default.png"
+    />
+    <div class="team_name resize_center" id="t2_name">Team 2 Name</div>
+    <div class="player_name resize_center" id="p2_name">Player 2 Name</div>
+    <div class="player_name resize_center" id="p4_name">Player 4 Name</div>
+
+    <div class="time_wrapper resize_center outline">
+      Race Starts: <span id="timer">Soon</span>
+    </div>
+
+    <!-- Crew -->
+    <div class="crew_wrapper resize_center outline">
+      <span class="text comms" id="commentators"
+        >Commentator 1, Commentator 2</span
+      >
+      <span class="text trackers" id="trackers">Tracker 1, Tracker 2</span>
+      <span class="restreamer" id="restreamer">Restreamer</span>
+    </div>
+
+    <!-- layout image -->
+    <img
+      class="layout"
+      id="layout"
+      src="https://images.alttprleague.com/RestreamImages/PreRace_2v2_Season5.png"
+    />
+  </body>
+</html>

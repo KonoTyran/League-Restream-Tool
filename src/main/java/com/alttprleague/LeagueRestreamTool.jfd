@@ -1,0 +1,179 @@
+JFDML JFormDesigner: "8.0.0.0.194" Java: "17.0.4.1" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class net.miginfocom.swing.MigLayout ) {
+			"$layoutConstraints": "insets 0,novisualpadding,hidemode 3,gap 5 5"
+			"$columnConstraints": "[876,grow,fill]"
+			"$rowConstraints": "[fill][415,grow,fill]"
+		} ) {
+			name: "pMain"
+			"minimumSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+			"preferredSize": new java.awt.Dimension( 900, 400 )
+			add( new FormContainer( "javax.swing.JMenuBar", new FormLayoutManager( class javax.swing.JMenuBar ) ) {
+				name: "mbMain"
+				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
+					name: "mFile"
+					"text": "File"
+					"displayedMnemonicIndex": 0
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "miExit"
+						"text": "Exit"
+						"displayedMnemonicIndex": 1
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "miExit", true ) )
+					} )
+				} )
+				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
+					name: "mEdit"
+					"text": "Settings"
+					"displayedMnemonicIndex": 0
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "miAuthKey"
+						"text": "Restreamer Auth Key"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "miAuthKey", true ) )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "miOBSSettings"
+						"text": "OBS Conneciton Settings"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "miOBSSettings", true ) )
+					} )
+				} )
+			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+				"value": "cell 0 0"
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class net.miginfocom.swing.MigLayout ) {
+				"$layoutConstraints": "insets panel,novisualpadding,hidemode 3"
+				"$columnConstraints": "[fill][fill][fill][fill][grow,fill][fill]"
+				"$rowConstraints": "[][grow,fill][]"
+			} ) {
+				name: "pBody"
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "btnLeague1"
+					"text": "theALTTPRLeague"
+					"enabled": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnLeague1", true ) )
+				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+					"value": "cell 0 0"
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "btnLeague2"
+					"text": "theALTTPRLeague2"
+					"enabled": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnLeague2", true ) )
+				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+					"value": "cell 1 0"
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "btnLeague3"
+					"text": "theALTTPRLeague3"
+					"enabled": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnLeague3", true ) )
+				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+					"value": "cell 2 0"
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "btnLeague4"
+					"text": "theALTTPRLeague4"
+					"enabled": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnLeague4", true ) )
+				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+					"value": "cell 3 0"
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "lStatus"
+					"horizontalAlignment": 0
+				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+					"value": "cell 4 0"
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "btnStreamKey"
+					"text": "Copy Stream Key"
+					"enabled": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnCopy", true ) )
+				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+					"value": "cell 5 0"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class net.miginfocom.swing.MigLayout ) {
+					"$layoutConstraints": "insets 0,hidemode 3,gap 03 3"
+					"$columnConstraints": "[grow,sizegroup 1,fill][grow,sizegroup 1,fill]"
+					"$rowConstraints": "[grow,sizegroup 1,fill][grow,sizegroup 1,fill]"
+				} ) {
+					name: "pConsoleContainer"
+					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+						name: "spTopLeft"
+						"verticalScrollBarPolicy": 22
+						add( new FormComponent( "com.alttprleague.components.Console" ) {
+							name: "consoleTopLeft"
+						} )
+					}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+						"value": "cell 0 0"
+					} )
+					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+						name: "spTopRight"
+						"verticalScrollBarPolicy": 22
+						add( new FormComponent( "com.alttprleague.components.Console" ) {
+							name: "consoleTopRight"
+						} )
+					}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+						"value": "cell 1 0"
+					} )
+					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+						name: "spBottomLeft"
+						"verticalScrollBarPolicy": 22
+						add( new FormComponent( "com.alttprleague.components.Console" ) {
+							name: "consoleBottomLeft"
+						} )
+					}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+						"value": "cell 0 1"
+					} )
+					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+						name: "spBottomRight"
+						"verticalScrollBarPolicy": 22
+						add( new FormComponent( "com.alttprleague.components.Console" ) {
+							name: "consoleBottomRight"
+						} )
+					}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+						"value": "cell 1 1"
+					} )
+				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+					"value": "cell 0 1 6 1"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class net.miginfocom.swing.MigLayout ) {
+					"$layoutConstraints": "insets 0,hidemode 3"
+					"$columnConstraints": "[fill][grow,fill]"
+					"$rowConstraints": "[]"
+				} ) {
+					name: "pUtil"
+					add( new FormComponent( "com.alttprleague.components.StatusLight" ) {
+						name: "obsStatus"
+						addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "lObsStatusMouseClicked", true ) )
+					}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+						"value": "cell 0 0"
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "btnOBSConnect"
+						"text": "Connect to OBS"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnOBSConnect", true ) )
+					}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+						"value": "cell 0 0"
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "btnOBSSaveCrop"
+						"text": "Save Crops"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "btnOBSSaveCrop", true ) )
+					}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+						"value": "cell 0 0"
+					} )
+				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+					"value": "cell 0 2 6 1"
+				} )
+			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+				"value": "cell 0 1"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 960, 490 )
+		} )
+	}
+}
