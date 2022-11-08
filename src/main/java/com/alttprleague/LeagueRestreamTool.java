@@ -767,6 +767,7 @@ public class LeagueRestreamTool {
                         "[]"));
 
                     //---- obsStatus ----
+                    obsStatus.setToolTipText("OBS Connection");
                     obsStatus.addMouseListener(new MouseAdapter() {
                         @Override
                         public void mouseClicked(MouseEvent e) {
