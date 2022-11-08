@@ -29,7 +29,6 @@ import java.nio.file.Files;
 import java.time.ZonedDateTime;
 import java.util.Timer;
 import java.util.*;
-import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
@@ -52,7 +51,7 @@ public class LeagueRestreamTool {
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
-    private final Settings settings;
+    public final Settings settings = new Settings();
 
     private final String baseDir = "output\\";
     private Timer raceTimeCheckTimer = new Timer();
@@ -114,9 +113,7 @@ public class LeagueRestreamTool {
     public LeagueRestreamTool() {
         FlatDarkLaf.setup();
         initComponents();
-        root = Preferences.userRoot().node(this.getClass().getName().toLowerCase());
-        settings = new Settings(root);
-        obsRelay = new OBSClient(obsStatus, this, settings);
+        obsRelay = new OBSClient(obsStatus, this);
         new File(baseDir).mkdirs();
         setAuthKey(settings.getAuthKey());
 
@@ -134,15 +131,12 @@ public class LeagueRestreamTool {
                 btnOBSConnect.setText("Disconnect");
                 btnOBSConnect.setEnabled(true);
                 btnStreamKey.setText("Send Key to OBS");
-                if(!settings.getAuthKey().isBlank())
-                    btnOBSSaveCrop.setEnabled(true);
             }
 
             case Disconnected -> {
                 btnOBSConnect.setText("Connect");
                 btnOBSConnect.setEnabled(true);
                 btnStreamKey.setText("Copy Key to Clipboard");
-                btnOBSSaveCrop.setEnabled(false);
             }
         }
     }
@@ -155,12 +149,6 @@ public class LeagueRestreamTool {
             btnLeague2.setEnabled(false);
             btnLeague3.setEnabled(false);
             btnLeague4.setEnabled(false);
-            try {
-                root.removeNode();
-                root.flush();
-            } catch (BackingStoreException e) {
-                throw new RuntimeException(e);
-            }
         } else {
             lStatus.setText("");
             if(obsStatus.getStatus() == StatusLight.Status.Connected)
@@ -537,6 +525,7 @@ public class LeagueRestreamTool {
     }
 
     private void btnOBSSaveCrop(ActionEvent event) {
+
         newCrops.forEach((playerId, crop) -> {
             try {
                 String json = new Gson().toJson(crop);
@@ -557,13 +546,17 @@ public class LeagueRestreamTool {
                 consoleTopLeft.appendError("Reason: " + e.getLocalizedMessage());
             }
         });
-        if(!newCrops.isEmpty())
-            lStatus.setText("Sent Crops.");
+
+        btnOBSSaveCrop.setEnabled(false);
+        btnOBSSaveCrop.setText("Crops Sent");
         newCrops.clear();
     }
 
     public void setCrop(boolean timer, Integer playerID, Integer cropTop, Integer cropLeft, Integer cropRight, Integer cropBottom) {
+        if(channel == null) return;
         if(cropTop + cropLeft + cropRight + cropBottom == 0) return;
+        btnOBSSaveCrop.setEnabled(true);
+        btnOBSSaveCrop.setText("Save Crops");
         int leaugeID = channel.episode.players[playerID-1].id;
         var crop = newCrops.getOrDefault(leaugeID, new Crop());
         if(!newCrops.containsKey(leaugeID)) newCrops.put(leaugeID, crop);
@@ -789,6 +782,7 @@ public class LeagueRestreamTool {
 
                     //---- btnOBSSaveCrop ----
                     btnOBSSaveCrop.setText("Save Crops");
+                    btnOBSSaveCrop.setEnabled(false);
                     btnOBSSaveCrop.addActionListener(e -> btnOBSSaveCrop(e));
                     pUtil.add(btnOBSSaveCrop, "cell 0 0");
                 }

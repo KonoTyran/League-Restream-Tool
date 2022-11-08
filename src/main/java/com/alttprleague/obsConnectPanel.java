@@ -25,18 +25,29 @@ public class obsConnectPanel extends JDialog {
     }
 
     private void ok(ActionEvent e) {
-        applySettings();
         this.setVisible(false);
+        applySettings();
     }
 
     private void applySettings() {
         settings.setObsServer(tfServer.getText());
-        settings.setObsPort(Integer.parseInt(tfPort.getText()));
+        try {
+            settings.setObsPort(Integer.parseInt(tfPort.getText()));
+        } catch (NumberFormatException ignored) {
+            settings.setObsPort(0);
+        }
         settings.setObsPassword(String.valueOf(pfPassword.getPassword()));
     }
 
     private void cancel(ActionEvent e) {
         this.setVisible(false);
+        tfServer.setText(settings.getObsServer());
+        tfPort.setText(String.valueOf(settings.getObsPort()));
+        pfPassword.setText(settings.getObsPassword());
+    }
+
+    private void btnApply(ActionEvent e) {
+        applySettings();
     }
 
     private void initComponents() {
@@ -50,9 +61,9 @@ public class obsConnectPanel extends JDialog {
         label3 = new JLabel();
         pfPassword = new JPasswordField();
         buttonBar = new JPanel();
-        okButton = new JButton();
-        cancelButton = new JButton();
-        button1 = new JButton();
+        btnOk = new JButton();
+        btnCancel = new JButton();
+        btnApply = new JButton();
 
         //======== this ========
         setTitle("OBS Server Information");
@@ -103,19 +114,20 @@ public class obsConnectPanel extends JDialog {
                     // rows
                     null));
 
-                //---- okButton ----
-                okButton.setText("OK");
-                okButton.addActionListener(e -> ok(e));
-                buttonBar.add(okButton, "cell 0 0");
+                //---- btnOk ----
+                btnOk.setText("OK");
+                btnOk.addActionListener(e -> ok(e));
+                buttonBar.add(btnOk, "cell 0 0");
 
-                //---- cancelButton ----
-                cancelButton.setText("Cancel");
-                cancelButton.addActionListener(e -> cancel(e));
-                buttonBar.add(cancelButton, "cell 1 0");
+                //---- btnCancel ----
+                btnCancel.setText("Cancel");
+                btnCancel.addActionListener(e -> cancel(e));
+                buttonBar.add(btnCancel, "cell 1 0");
 
-                //---- button1 ----
-                button1.setText("Apply");
-                buttonBar.add(button1, "cell 2 0");
+                //---- btnApply ----
+                btnApply.setText("Apply");
+                btnApply.addActionListener(e -> btnApply(e));
+                buttonBar.add(btnApply, "cell 2 0");
             }
             dialogPane.add(buttonBar, BorderLayout.SOUTH);
         }
@@ -135,8 +147,8 @@ public class obsConnectPanel extends JDialog {
     private JLabel label3;
     private JPasswordField pfPassword;
     private JPanel buttonBar;
-    private JButton okButton;
-    private JButton cancelButton;
-    private JButton button1;
+    private JButton btnOk;
+    private JButton btnCancel;
+    private JButton btnApply;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }
