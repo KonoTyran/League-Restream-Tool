@@ -29,7 +29,6 @@ import java.nio.file.Files;
 import java.time.ZonedDateTime;
 import java.util.Timer;
 import java.util.*;
-import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -46,8 +45,6 @@ public class LeagueRestreamTool {
     private final int TOP_RIGHT_PORT = 27771;
     private final int BOTTOM_LEFT_PORT = 27772;
     private final int BOTTOM_RIGHT_PORT = 27773;
-
-    private Preferences root;
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
@@ -300,6 +297,12 @@ public class LeagueRestreamTool {
             raceTemplate.getElementById("t1_name").text(channel.episode.players[0].team.name + " ("+ channel.episode.players[0].team.points +")");
             preRaceTemplate.getElementById("t1_logo").attr("src",channel.episode.players[0].team.logo_url);
             preRaceTemplate.getElementById("t1_name").text(channel.episode.players[0].team.name + " ("+ channel.episode.players[0].team.points +")");
+            if(channel.episode.is_playoff) {
+                raceTemplate.getElementById("t1_wins").removeClass("hidden");
+                raceTemplate.getElementById("t1_wins").attr("data-wins", String.valueOf(channel.episode.players[0].team.stage_wins));
+                raceTemplate.getElementById("t1_name").text(channel.episode.players[0].team.name);
+                preRaceTemplate.getElementById("t1_name").text(channel.episode.players[0].team.name + " ("+ channel.episode.players[0].team.stage_wins +")");
+            }
 
             // LEFT TEAM PLAYER 1
             startStreamLink(Screen.TOP_LEFT,channel.episode.players[0].streaming_from);
@@ -327,6 +330,12 @@ public class LeagueRestreamTool {
             raceTemplate.getElementById("t2_name").text(channel.episode.players[1].team.name + " ("+ channel.episode.players[1].team.points +")");
             preRaceTemplate.getElementById("t2_logo").attr("src",channel.episode.players[1].team.logo_url);
             preRaceTemplate.getElementById("t2_name").text(channel.episode.players[1].team.name + " ("+ channel.episode.players[1].team.points +")");
+            if(channel.episode.is_playoff) {
+                raceTemplate.getElementById("t2_wins").removeClass("hidden");
+                raceTemplate.getElementById("t2_wins").attr("data-wins", String.valueOf(channel.episode.players[1].team.stage_wins));
+                raceTemplate.getElementById("t2_name").text(channel.episode.players[1].team.name);
+                preRaceTemplate.getElementById("t2_name").text(channel.episode.players[1].team.name + " ("+ channel.episode.players[1].team.stage_wins +")");
+            }
 
 
             // RIGHT TEAM PLAYER 1
@@ -352,6 +361,12 @@ public class LeagueRestreamTool {
             // Stage & MODE
             preRaceTemplate.getElementById("stage").text(channel.episode.stage);
             preRaceTemplate.getElementById("mode").text(channel.episode.mode);
+            preRaceTemplate.getElementById("open").text(channel.episode.season.open ? "Open":"Invitational");
+            if(channel.episode.is_playoff && (channel.episode.background.toLowerCase().contains("power") || channel.episode.background.toLowerCase().contains("game4"))) {
+                raceTemplate.getElementById("mode").removeClass("hidden");
+                raceTemplate.getElementById("mode").text(channel.episode.mode);
+            }
+
 
             // BACKGROUND
             raceTemplate.getElementById("layout").attr("src", channel.episode.background);
