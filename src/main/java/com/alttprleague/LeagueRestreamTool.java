@@ -71,7 +71,7 @@ public class LeagueRestreamTool {
 
     public static void main(String[] args) throws IOException {
         var restreamTool = new LeagueRestreamTool();
-        window = new JFrame("League Restream Tool V3.1");
+        window = new JFrame("League Restream Tool V3.3");
         URL iconURL = LeagueRestreamTool.class.getResource("/LeagueLogo.png");
         window.setIconImage(ImageIO.read(iconURL));
         window.setContentPane(restreamTool.pMain);
@@ -248,6 +248,10 @@ public class LeagueRestreamTool {
     }
 
     private void fetchChannel(String channelName) {
+        fetchChannel(channelName, true);
+    }
+
+    private void fetchChannel(String channelName, boolean updateStreams) {
         try {
             var request = HttpRequest.newBuilder()
                     .uri(URI.create("https://alttprleague.com/api/restream/?channel="+ channelName))
@@ -256,7 +260,7 @@ public class LeagueRestreamTool {
 
             httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                     .thenApply(HttpResponse::body)
-                    .thenAccept(this::ProcessWebsiteResponse);
+                    .thenAccept((r) -> ProcessWebsiteResponse(r, updateStreams));
         }
         catch (Exception e) {
             consoleTopLeft.appendError("Error while fetching restream data from League website.");
@@ -264,20 +268,34 @@ public class LeagueRestreamTool {
         }
     }
 
-    private void ProcessWebsiteResponse(String json) {
-        try {
+    private void ProcessWebsiteResponse(String json, boolean updateStreams) {
             var gson = new Gson();
-            var channel = gson.fromJson(json, Channel.class);
-            if(!channel.error.isBlank()) {
+            channel = gson.fromJson(json, Channel.class);
+            if (!channel.error.isBlank()) {
                 consoleTopLeft.appendError(channel.error);
                 return;
             }
-            if(channel.episode == null) {
-                consoleTopLeft.appendError("No episode loaded on Restreamer Dashboard for "+channel.twitch_name+".");
+            if (channel.episode == null) {
+                consoleTopLeft.appendError("No episode loaded on Restreamer Dashboard for " + channel.twitch_name + ".");
                 return;
             }
 
-            this.channel = channel;
+            updateLayouts();
+            if(updateStreams)
+                updateStreams();
+    }
+
+    private void updateStreams() {
+        startStreamLink(Screen.TOP_LEFT,channel.episode.players[0].streaming_from);
+        startStreamLink(Screen.TOP_RIGHT,channel.episode.players[1].streaming_from);
+        if(channel.episode.players.length == 4) {
+            startStreamLink(Screen.BOTTOM_LEFT,channel.episode.players[2].streaming_from);
+            startStreamLink(Screen.BOTTOM_RIGHT,channel.episode.players[3].streaming_from);
+        }
+    }
+
+    private void updateLayouts() {
+
             btnStreamKey.setEnabled(true);
             obsRelay.setStreamKey(channel.stream_key);
 
@@ -305,7 +323,6 @@ public class LeagueRestreamTool {
             }
 
             // LEFT TEAM PLAYER 1
-            startStreamLink(Screen.TOP_LEFT,channel.episode.players[0].streaming_from);
             preRaceTemplate.getElementById("p1_logo").attr("src",channel.episode.players[0].logo_url);
             //preRaceTemplate.getElementById("p1_sprite").attr("src",channel.episode.players[0].sprite_url);
             preRaceTemplate.getElementById("p1_name").text(channel.episode.players[0].name);
@@ -316,7 +333,6 @@ public class LeagueRestreamTool {
 
             // LEFT TEAM PLAYER 2
             if(channel.episode.players.length >= 3) {
-                startStreamLink(Screen.BOTTOM_LEFT,channel.episode.players[2].streaming_from);
                 preRaceTemplate.getElementById("p3_logo").attr("src",channel.episode.players[2].logo_url);
                 //preRaceTemplate.getElementById("p3_sprite").attr("src",channel.episode.players[2].sprite_url);
                 preRaceTemplate.getElementById("p3_name").text(channel.episode.players[2].name);
@@ -339,7 +355,6 @@ public class LeagueRestreamTool {
 
 
             // RIGHT TEAM PLAYER 1
-            startStreamLink(Screen.TOP_RIGHT,channel.episode.players[1].streaming_from);
             preRaceTemplate.getElementById("p2_logo").attr("src",channel.episode.players[1].logo_url);
             //preRaceTemplate.getElementById("p2_sprite").attr("src",channel.episode.players[1].sprite_url);
             preRaceTemplate.getElementById("p2_name").text(channel.episode.players[1].name);
@@ -349,7 +364,6 @@ public class LeagueRestreamTool {
 
             // RIGHT TEAM PLAYER 2
             if(channel.episode.players.length >= 4) {
-                startStreamLink(Screen.BOTTOM_RIGHT,channel.episode.players[3].streaming_from);
                 preRaceTemplate.getElementById("p4_logo").attr("src",channel.episode.players[3].logo_url);
                 //preRaceTemplate.getElementById("p4_sprite").attr("src",channel.episode.players[3].sprite_url);
                 preRaceTemplate.getElementById("p4_name").text(channel.episode.players[3].name);
@@ -362,9 +376,12 @@ public class LeagueRestreamTool {
             preRaceTemplate.getElementById("stage").text(channel.episode.stage);
             preRaceTemplate.getElementById("mode").text(channel.episode.mode);
             preRaceTemplate.getElementById("open").text(channel.episode.season.open ? "Open":"Invitational");
+
             if(channel.episode.is_playoff && (channel.episode.background.toLowerCase().contains("power") || channel.episode.background.toLowerCase().contains("game4"))) {
                 raceTemplate.getElementById("mode").removeClass("hidden");
                 raceTemplate.getElementById("mode").text(channel.episode.mode);
+            } else {
+                raceTemplate.getElementById("mode").remove();
             }
 
 
@@ -408,6 +425,9 @@ public class LeagueRestreamTool {
             cardContainer.appendChild(scheduleCard);
 
             for (Division division : channel.divisions) {
+                if(division.teams == null){
+                    division.teams = new Team[0];
+                }
                 ArrayList<Team> teams = new ArrayList<>(Arrays.asList(division.teams));
                 teams.sort(Comparator.comparingInt(team -> team.points));
                 Collections.reverse(teams);
@@ -429,6 +449,7 @@ public class LeagueRestreamTool {
                 cardContainer.appendChild(standingsCard);
             }
 
+        try {
             cardContainer.child(0).addClass("active");
 
             FileWriter raceOut = new FileWriter(new File(baseDir,"RaceLayout.html"));
@@ -453,6 +474,7 @@ public class LeagueRestreamTool {
             playlist.close();
 
 
+            obsRelay.reloadLayout();
         } catch (IOException e) {
             e.printStackTrace();
             consoleTopLeft.appendError("Error Writing Files");
@@ -482,6 +504,7 @@ public class LeagueRestreamTool {
                                 FileWriter timeOut = new FileWriter(new File(baseDir, "PreRaceLayout.html"));
                                 timeOut.write(doc.outerHtml());
                                 timeOut.close();
+                                obsRelay.reloadLayout();
                             } catch (IOException e) {
                                 consoleTopLeft.appendError("Error updating layout with race start time.");
                             }
@@ -599,6 +622,10 @@ public class LeagueRestreamTool {
         panel.setVisible(true);
     }
 
+    private void ReloadStaff(ActionEvent e) {
+        fetchChannel(channel.twitch_name, false);
+    }
+
     private enum Screen {
         TOP_LEFT,TOP_RIGHT,BOTTOM_LEFT,BOTTOM_RIGHT
     }
@@ -632,6 +659,7 @@ public class LeagueRestreamTool {
         obsStatus = new StatusLight();
         btnOBSConnect = new JButton();
         btnOBSSaveCrop = new JButton();
+        btnReloadStaff = new JButton();
 
         //======== pMain ========
         {
@@ -777,7 +805,8 @@ public class LeagueRestreamTool {
                         "insets 0,hidemode 3",
                         // columns
                         "[fill]" +
-                        "[grow,fill]",
+                        "[532,grow,fill]" +
+                        "[right]",
                         // rows
                         "[]"));
 
@@ -801,6 +830,11 @@ public class LeagueRestreamTool {
                     btnOBSSaveCrop.setEnabled(false);
                     btnOBSSaveCrop.addActionListener(e -> btnOBSSaveCrop(e));
                     pUtil.add(btnOBSSaveCrop, "cell 0 0");
+
+                    //---- btnReloadStaff ----
+                    btnReloadStaff.setText("Reload Staff");
+                    btnReloadStaff.addActionListener(e -> ReloadStaff(e));
+                    pUtil.add(btnReloadStaff, "cell 2 0");
                 }
                 pBody.add(pUtil, "cell 0 2 6 1");
             }
@@ -837,5 +871,6 @@ public class LeagueRestreamTool {
     private StatusLight obsStatus;
     private JButton btnOBSConnect;
     private JButton btnOBSSaveCrop;
+    private JButton btnReloadStaff;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }

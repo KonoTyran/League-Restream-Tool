@@ -7,18 +7,21 @@ import io.obswebsocket.community.client.OBSRemoteController
 import io.obswebsocket.community.client.WebSocketCloseCode
 import io.obswebsocket.community.client.listener.lifecycle.ReasonThrowable
 import io.obswebsocket.community.client.message.event.sceneitems.SceneItemTransformChangedEvent
-import io.obswebsocket.community.client.message.request.Request
-import io.obswebsocket.community.client.message.request.Request.Data
+import io.obswebsocket.community.client.message.request.inputs.PressInputPropertiesButtonRequest
+import io.obswebsocket.community.client.message.request.ui.GetStudioModeEnabledRequest
+import io.obswebsocket.community.client.message.response.RequestResponse
 import io.obswebsocket.community.client.message.response.config.SetStreamServiceSettingsResponse
+import io.obswebsocket.community.client.message.response.inputs.PressInputPropertiesButtonResponse
 import io.obswebsocket.community.client.message.response.sceneitems.GetGroupSceneItemListResponse
 import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItemListResponse
 import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItemTransformResponse
 import io.obswebsocket.community.client.message.response.sceneitems.SetSceneItemTransformResponse
 import io.obswebsocket.community.client.message.response.scenes.GetGroupListResponse
 import io.obswebsocket.community.client.message.response.scenes.GetSceneListResponse
+import io.obswebsocket.community.client.message.response.ui.GetStudioModeEnabledResponse
 import org.slf4j.LoggerFactory
 import java.util.*
-import kotlin.collections.HashMap
+
 
 class OBSClient(
     private val obsStatus: StatusLight,
@@ -205,6 +208,7 @@ class OBSClient(
     }
 
     private fun pushCrop(containers: HashMap<String, Int>, top: Int, left: Int, right: Int, bottom: Int) {
+        if (!isConnected) return
         for (container in containers.keys) {
             val sourceID = containers[container]!!
             obsRemoteController.getSceneItemTransform(container, sourceID) { tResponse: GetSceneItemTransformResponse ->
@@ -234,7 +238,7 @@ class OBSClient(
 
     fun setStreamKey(key: String?) {
         if (!isConnected) return
-        val settings = JsonObject()
+        val settings: JsonObject = JsonObject()
         settings.addProperty("bwtest", false)
         settings.addProperty("key", key)
         settings.addProperty("server", "auto")
@@ -247,6 +251,13 @@ class OBSClient(
                 log.error("error setting stream key.")
             }
         }
+    }
+
+    fun reloadLayout() {
+        if (!isConnected) return
+        obsRemoteController.sendRequest(PressInputPropertiesButtonRequest.builder().inputName("PreRaceLayout").propertyName("refreshnocache").build()) { _: PressInputPropertiesButtonResponse -> return@sendRequest }
+        obsRemoteController.sendRequest(PressInputPropertiesButtonRequest.builder().inputName("WebLayout").propertyName("refreshnocache").build()) { _: PressInputPropertiesButtonResponse -> return@sendRequest }
+        obsRemoteController.sendRequest(PressInputPropertiesButtonRequest.builder().inputName("PostRaceLayout").propertyName("refreshnocache").build()) { _: PressInputPropertiesButtonResponse -> return@sendRequest }
     }
 
     companion object {

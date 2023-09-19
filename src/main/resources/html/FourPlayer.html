@@ -27,6 +27,7 @@
       color: white;
       font-family: "Roboto", sans-serif;
       font-weight: 700;
+      font-size: 2.5rem;
     }
 
     iframe {
@@ -87,7 +88,7 @@
     }
 
     .hidden {
-      display: none;
+      visibility: hidden;
     }
 
     #layout {
@@ -156,6 +157,8 @@
       height: 49px;
       width: 477px;
       z-index: 1;
+      overflow: hidden;
+      text-align: center;
     }
 
     .player_name {
@@ -163,6 +166,8 @@
       height: 49px;
       width: 249px;
       z-index: 1;
+      overflow: hidden;
+      text-align: center;
     }
 
     #t1_name {
@@ -283,7 +288,7 @@
         src="https://images.alttprleague.com/static/league/img/player-default.png"
         alt="logo"
 />
-<div class="team_name resize_center" id="t1_name">Team 1</div>
+<div class="team_name resize_center" id="t1_name" data-path="players.team1.player1.name">Team 1</div>
 <div class="player_name resize_center" id="p1_name">Player 1</div>
 <div class="player_name resize_center" id="p3_name">Player 3</div>
 <div class="left_wins hidden" data-wins="0" id="t1_wins">

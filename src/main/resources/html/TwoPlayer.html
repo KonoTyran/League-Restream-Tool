@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=1920, initial-scale=1.0" />
     <title>TwoPlayer</title>
-    <script src="https://images.alttprleague.com/RestreamTool/js/textFit.js"></script>
+<!--    <script src="https://images.alttprleague.com/RestreamTool/js/textFit.js"></script>-->
     <script src="https://images.alttprleague.com/RestreamTool/js/common.js" defer></script>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap");
@@ -24,6 +24,7 @@
         color: white;
         font-family: "Roboto", sans-serif;
         font-weight: 700;
+        font-size: 2rem;
       }
 
       iframe {
@@ -84,7 +85,7 @@
       }
 
       .hidden {
-        display: none;
+        visibility: hidden;
       }
 
       #layout {
@@ -146,12 +147,18 @@
         position: absolute;
         height: 72px;
         width: 490px;
+        overflow: hidden;
+        text-align: center;
+        font-size: 3rem;
       }
 
       .player_name {
         position: absolute;
         height: 76px;
         width: 436px;
+        overflow: hidden;
+        text-align: center;
+        font-size: 3rem;
       }
 
       #t1_name {
