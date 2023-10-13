@@ -71,7 +71,7 @@ public class LeagueRestreamTool {
 
     public static void main(String[] args) throws IOException {
         var restreamTool = new LeagueRestreamTool();
-        window = new JFrame("League Restream Tool V3.3");
+        window = new JFrame("League Restream Tool V3.4");
         URL iconURL = LeagueRestreamTool.class.getResource("/LeagueLogo.png");
         window.setIconImage(ImageIO.read(iconURL));
         window.setContentPane(restreamTool.pMain);
