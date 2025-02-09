@@ -25,6 +25,7 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.ZonedDateTime;
 import java.util.Timer;
@@ -279,8 +280,13 @@ public class LeagueRestreamTool {
                 consoleTopLeft.appendError("No episode loaded on Restreamer Dashboard for " + channel.twitch_name + ".");
                 return;
             }
-
-            updateLayouts();
+            try {
+                updateLayouts();
+            }
+            catch (Exception e) {
+                consoleTopLeft.appendError("Error updating layouts.");
+                consoleTopLeft.appendError("Reason: " + e.getLocalizedMessage());
+            }
             if(updateStreams)
                 updateStreams();
     }
@@ -373,6 +379,12 @@ public class LeagueRestreamTool {
             }
 
             // Stage & MODE
+            if (channel.episode.stage == null) {
+                channel.episode.stage = "Unknown";
+            }
+            if (channel.episode.mode == null) {
+                channel.episode.mode = "Unknown";
+            }
             preRaceTemplate.getElementById("stage").text(channel.episode.stage);
             preRaceTemplate.getElementById("mode").text(channel.episode.mode);
             preRaceTemplate.getElementById("open").text(channel.episode.season.open ? "Open":"Invitational");
@@ -423,7 +435,9 @@ public class LeagueRestreamTool {
                 schedule.appendChild(row);
             }
             cardContainer.appendChild(scheduleCard);
-
+            if (channel.divisions == null) {
+                channel.divisions = new Division[0];
+            }
             for (Division division : channel.divisions) {
                 if(division.teams == null){
                     division.teams = new Team[0];
@@ -451,16 +465,18 @@ public class LeagueRestreamTool {
 
         try {
             cardContainer.child(0).addClass("active");
-
-            FileWriter raceOut = new FileWriter(new File(baseDir,"RaceLayout.html"));
+            OutputStreamWriter raceOut = new OutputStreamWriter(new FileOutputStream(new File(baseDir,"RaceLayout.html")) , StandardCharsets.UTF_8);
+//          FileWriter raceOut = new FileWriter(new File(baseDir,"RaceLayout.html"));
             raceOut.write(raceTemplate.outerHtml());
             raceOut.close();
 
-            FileWriter preRaceOut = new FileWriter(new File(baseDir,"PreRaceLayout.html"));
+            OutputStreamWriter preRaceOut = new OutputStreamWriter(new FileOutputStream(new File(baseDir,"PreRaceLayout.html")) , StandardCharsets.UTF_8);
+//            FileWriter preRaceOut = new FileWriter(new File(baseDir,"PreRaceLayout.html"));
             preRaceOut.write(preRaceTemplate.outerHtml());
             preRaceOut.close();
 
-            FileWriter postRaceOut = new FileWriter(new File(baseDir,"PostRaceLayout.html"));
+            OutputStreamWriter postRaceOut = new OutputStreamWriter(new FileOutputStream(new File(baseDir,"PostRaceLayout.html")) , StandardCharsets.UTF_8);
+//            FileWriter postRaceOut = new FileWriter(new File(baseDir,"PostRaceLayout.html"));
             postRaceOut.write(postRaceTemplate.outerHtml());
             postRaceOut.close();
 
